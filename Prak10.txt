@@ -1,0 +1,46 @@
+1)
+SELECT job_id
+FROM emp
+WHERE hire_date BETWEEN to_date('01-JAN-1990') 
+AND to_date('30-JUN-1990') 
+OR (hire_date BETWEEN to_date('01-JAN-1991') AND to_date('30-JUN-1991'));
+
+2)
+CREATE OR REPLACE FUNCTION fn_info(id employees.employee_id%TYPE)
+RETURN VARCHAR2 IS
+v_DptCode employees.department_id%TYPE;
+v_Sal employees.salary%TYPE;
+v_Info VARCHAR2(100);
+BEGIN
+SELECT department_id, salary INTO v_DptCode, v_Sal
+FROM employees WHERE employee_id=id;
+
+IF v_DptCode IN(10,50,110) THEN
+v_Info := 'Kenaikan 5% gaji awal '||to_char(v_Sal)||' Gaji sekarang '||to_char(v_Sal+(v_Sal*0.05));
+ELSIF v_DptCode = 60 THEN
+v_Info := 'Kenaikan 10% gaji awal '||to_char(v_Sal)||' Gaji sekarang '||to_char(v_Sal+(v_Sal*0.1));
+ELSIF v_DptCode IN (20, 80) THEN
+v_Info := 'Kenaikan 15% gaji awal '||to_char(v_Sal)||' Gaji sekarang '||to_char(v_Sal+(v_Sal*0.15));
+ELSIF v_DptCode = 90 THEN
+v_Info := 'Tidak ada kenaikan gaji';
+END IF;
+RETURN v_Info;
+END fn_info;
+/
+
+SELECT employee_id, last_name, department_id, fn_info(employee_id) info 
+FROM employees;
+
+3)
+SELECT last_name, salary
+FROM employees e
+WHERE salary = (SELECT max(salary) FROM employees)
+OR salary = (SELECT max(salary) FROM employees WHERE last_name != 'King');
+
+4)
+SELECT e.empno, e.ename
+FROM emp e, dept d
+WHERE d.deptno = d.deptno 
+AND (d.loc='CALIFORNIA' OR d.loc='BOSTON');
+
+5) ...

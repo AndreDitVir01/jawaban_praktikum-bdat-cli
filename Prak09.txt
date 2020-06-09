@@ -1,0 +1,45 @@
+1)
+CREATE OR REPLACE FUNCTION montHire(pDate IN DATE)
+RETURN VARCHAR2
+IS
+vJan VARCHAR2(25);
+BEGIN
+IF pDate LIKE '%JAN%' THEN
+	vJan := 'Januari';
+ELSE
+	vJan := 'Bukan Januari';
+END IF;
+RETURN vJan;
+END montHire;
+/
+
+
+SELECT empno, ename, hiredate, montHire(hiredate)
+FROM emp;
+
+2)
+CREATE OR REPLACE FUNCTION fn_info(id employees.employee_id%TYPE)
+RETURN VARCHAR2 IS
+v_DptCode employees.department_id%TYPE;
+v_Sal employees.salary%TYPE;
+v_Info VARCHAR2(100);
+BEGIN
+SELECT department_id, salary INTO v_DptCode, v_Sal
+FROM employees
+WHERE employee_id=id;
+
+IF v_DptCode IN(10,50,110) THEN
+v_Info := 'Kenaikan 5% gaji awal ' ||to_char(v_Sal)||'Gaji Sekarang '||to_char(v_Sal+(v_Sal*0.05));
+ELSIF v_DptCode = 60 THEN
+v_Info := 'Kenaikan 10% gaji awal '||to_char(v_Sal)||'Gaji Sekarang '||to_char(v_Sal+(v_Sal*0.1));
+ELSIF v_DptCode = 20 THEN
+v_Info := 'Kenaikan 15% gaji awal '||to_char(v_Sal)||'Gaji Sekarang '||to_char(v_Sal+(v_Sal*0.15));
+ELSE
+v_Info := 'Tidak ada kenaikan gaji';
+END IF;
+RETURN v_Info;
+END fn_info;
+/
+
+SELECT employee_id, last_name, department_id, fn_info(employee_id) info 
+FROM employees;
