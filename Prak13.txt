@@ -1,0 +1,43 @@
+1)
+create table barang (
+	id_barang number(10) not null
+	, nama varchar2(50) not null
+	, spesifikasi varchar2(200) not null
+	, jumlah number(5) not null
+	, harga number(20) not null
+	, satuan varchar2(20) not null
+);
+
+create table history(
+	id_barang number(10) not null
+	, tanggal date not null
+	, stock number(10) not null
+	, type_transaksi varchar2(20) not null
+);
+
+create table transaksi(
+	nomor_transaksi number(10) not null
+	, id_barang number(10) not null
+	, tanggal date not null
+	, jumlah number(5) not null
+);
+
+2)
+CREATE OR REPLACE TRIGGER catat_history
+BEFORE
+INSERT OR UPDATE OR DELETE on transaksi
+FOR EACH ROW
+
+BEGIN
+UPDATE barang SET jumlah=jumlah-(:NEW.jumlah) where id_barang=:NEW.id_barang;
+IF inserting THEN
+	INSERT INTO history(id_barang, tanggal, stock, type_transaksi)
+	VALUES (:NEW.id_barang, :NEW.tanggal, :NEW.jumlah, 'tambah data');
+ELSIF updating THEN
+	INSERT INTO history(id_barang, tanggal, stock, type_transaksi)
+	VALUES (:OLD.id_barang, :NEW.tanggal, :NEW.jumlah, 'ubah data');
+ELSIF deleting THEN
+	INSERT INTO history(id_barang, tanggal, stock, type_transaksi)
+	VALUES (:OLD.id_barang, :OLD.tanggal, :OLD.jumlah, 'hapus data');
+END IF;
+END;
